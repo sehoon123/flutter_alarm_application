@@ -36,20 +36,9 @@ class AlarmSettingWidget extends StatelessWidget {
               onChanged: onToggleChanged,
             ),
           ),
-          GestureDetector(
-            onTap: () async {
-              TimeOfDay? pickedTime = await showTimePicker(
-                context: context,
-                initialTime: time,
-              );
-              if (pickedTime != null) {
-                onTimeChanged(pickedTime);
-              }
-            },
-            child: Text(
-              time.format(context),
-              style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
-            ),
+          Text(
+            time.format(context),
+            style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,

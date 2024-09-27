@@ -30,6 +30,12 @@ android {
         versionName = flutter.versionName
     }
 
+    dependencies {
+        implementation 'androidx.appcompat:appcompat:1.4.0' // Required for AppCompat themes
+        implementation 'com.google.android.material:material:1.6.0' // Required for Material Components themes
+        // Other dependencies
+    }
+
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.

@@ -23,6 +23,7 @@ flutter:
   uses-material-design: true
 
   assets:
+    - assets/sounds/
     - assets/sounds/marimba.mp3
     - assets/sounds/nokia.mp3
     - assets/sounds/mozart.mp3
