@@ -309,7 +309,7 @@ class _HomeScreenState extends State<HomeScreen> {
           title: '기상 알람',
           body: '일어날 시간입니다!',
         ),
-        androidFullScreenIntent: true,
+        // androidFullScreenIntent: true,
       );
       Alarm.set(alarmSettings: alarmSettings);
     }
@@ -334,7 +334,7 @@ class _HomeScreenState extends State<HomeScreen> {
           title: '취침 알람',
           body: '취침 시간입니다!',
         ),
-        androidFullScreenIntent: true,
+        // androidFullScreenIntent: true,
       );
       Alarm.set(alarmSettings: alarmSettings);
     }
