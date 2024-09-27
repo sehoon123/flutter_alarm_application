@@ -75,10 +75,11 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
       vibrate: true,
       volume: 0.8,
       fadeDuration: 3.0,
-      notificationTitle: widget.isWakeUp ? '기상 알람 스누즈' : '취침 알람 스누즈',
-      notificationBody: '스누즈 시간이 되었습니다!',
-      enableNotificationOnKill: true, // Set this to true
       androidFullScreenIntent: true, // Ensure this is set
+      notificationSettings: NotificationSettings(
+        title: widget.isWakeUp ? '기상 알람 스누즈' : '취침 알람 스누즈',
+        body: '스누즈 시간이 되었습니다!',
+      ),
     );
     Alarm.set(alarmSettings: alarmSettings);
     Navigator.pop(context);

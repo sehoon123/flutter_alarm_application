@@ -4,6 +4,7 @@ import 'dart:convert'; // For JSON encoding/decoding
 import 'package:flutter/material.dart';
 import 'package:alarm/alarm.dart';
 import 'package:flutter_alarm_application/screens/alarm_ring_screen.dart';
+import 'package:flutter_alarm_application/services/permission.dart';
 import 'package:flutter_alarm_application/widgets/alarm_setting_widget.dart';
 import 'package:flutter_alarm_application/widgets/notification_card.dart';
 import 'package:flutter_alarm_application/widgets/review_card.dart';
@@ -40,6 +41,10 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    AlarmPermissions.checkNotificationPermission();
+    if (Alarm.android) {
+      AlarmPermissions.checkAndroidScheduleExactAlarmPermission();
+    }
     loadPreferences();
     Alarm.ringStream.stream.listen((alarmSettings) {
       onAlarmRing(alarmSettings);
@@ -300,9 +305,10 @@ class _HomeScreenState extends State<HomeScreen> {
         vibrate: wakeUpVibration,
         volume: 0.8,
         fadeDuration: 3.0,
-        notificationTitle: '기상 알람',
-        notificationBody: '일어날 시간입니다!',
-        enableNotificationOnKill: true,
+        notificationSettings: NotificationSettings(
+          title: '기상 알람',
+          body: '일어날 시간입니다!',
+        ),
         androidFullScreenIntent: true,
       );
       Alarm.set(alarmSettings: alarmSettings);
@@ -324,9 +330,10 @@ class _HomeScreenState extends State<HomeScreen> {
         vibrate: bedTimeVibration,
         volume: 0.8,
         fadeDuration: 1.0,
-        notificationTitle: '취침 알람',
-        notificationBody: '취침 시간입니다!',
-        enableNotificationOnKill: true,
+        notificationSettings: NotificationSettings(
+          title: '취침 알람',
+          body: '취침 시간입니다!',
+        ),
         androidFullScreenIntent: true,
       );
       Alarm.set(alarmSettings: alarmSettings);
