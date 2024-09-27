@@ -302,7 +302,7 @@ class _HomeScreenState extends State<HomeScreen> {
         fadeDuration: 3.0,
         notificationTitle: '기상 알람',
         notificationBody: '일어날 시간입니다!',
-        enableNotificationOnKill: Platform.isIOS,
+        enableNotificationOnKill: true,
         androidFullScreenIntent: true,
       );
       Alarm.set(alarmSettings: alarmSettings);
@@ -326,7 +326,8 @@ class _HomeScreenState extends State<HomeScreen> {
         fadeDuration: 1.0,
         notificationTitle: '취침 알람',
         notificationBody: '취침 시간입니다!',
-        enableNotificationOnKill: Platform.isIOS,
+        enableNotificationOnKill: true,
+        androidFullScreenIntent: true,
       );
       Alarm.set(alarmSettings: alarmSettings);
     }
