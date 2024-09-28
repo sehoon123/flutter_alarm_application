@@ -1,7 +1,7 @@
 // lib/screens/alarm_detail_screen.dart
 
 import 'package:flutter/material.dart';
-import 'package:flutter_alarm_application/widgets/sound_selection_widget.dart';
+import 'package:alarmshare/widgets/sound_selection_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AlarmDetailScreen extends StatefulWidget {
@@ -13,7 +13,8 @@ class AlarmDetailScreen extends StatefulWidget {
   final int initialSnoozeDuration;
   final Function(TimeOfDay, List<String>, String, bool, int) onSave;
 
-  AlarmDetailScreen({
+  const AlarmDetailScreen({
+    super.key,
     required this.alarmType,
     required this.initialTime,
     required this.initialDays,
@@ -60,7 +61,7 @@ class _AlarmDetailScreenState extends State<AlarmDetailScreen> {
                   vibrationEnabled, snoozeDuration);
               Navigator.pop(context);
             },
-            child: Text(
+            child: const Text(
               '저장',
               style: TextStyle(color: Colors.white),
             ),
@@ -72,10 +73,11 @@ class _AlarmDetailScreenState extends State<AlarmDetailScreen> {
           children: [
             // Time Picker
             ListTile(
-              title: Text('시간 설정'),
+              title: const Text('시간 설정'),
               subtitle: Text(
                 selectedTime.format(context),
-                style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
               ),
               onTap: () async {
                 TimeOfDay? pickedTime = await showTimePicker(
@@ -89,10 +91,10 @@ class _AlarmDetailScreenState extends State<AlarmDetailScreen> {
                 }
               },
             ),
-            Divider(),
+            const Divider(),
             // Day Selection
             ListTile(
-              title: Text('반복 요일'),
+              title: const Text('반복 요일'),
               subtitle: Wrap(
                 spacing: 10.0,
                 children: days.map((day) {
@@ -113,12 +115,12 @@ class _AlarmDetailScreenState extends State<AlarmDetailScreen> {
                 }).toList(),
               ),
             ),
-            Divider(),
+            const Divider(),
             // Sound Selection
             ListTile(
-              title: Text('알람 소리'),
+              title: const Text('알람 소리'),
               subtitle: Text(selectedSound),
-              trailing: Icon(Icons.arrow_forward_ios),
+              trailing: const Icon(Icons.arrow_forward_ios),
               onTap: () async {
                 String? sound = await Navigator.push(
                   context,
@@ -135,10 +137,10 @@ class _AlarmDetailScreenState extends State<AlarmDetailScreen> {
                 }
               },
             ),
-            Divider(),
+            const Divider(),
             // Vibration Toggle
             SwitchListTile(
-              title: Text('진동'),
+              title: const Text('진동'),
               value: vibrationEnabled,
               onChanged: (value) {
                 setState(() {
@@ -146,10 +148,10 @@ class _AlarmDetailScreenState extends State<AlarmDetailScreen> {
                 });
               },
             ),
-            Divider(),
+            const Divider(),
             // Snooze Duration
             ListTile(
-              title: Text('스누즈 지속 시간'),
+              title: const Text('스누즈 지속 시간'),
               subtitle: DropdownButton<int>(
                 value: snoozeDuration,
                 items: snoozeOptions.map((int value) {

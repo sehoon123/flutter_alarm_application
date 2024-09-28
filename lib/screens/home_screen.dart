@@ -3,13 +3,15 @@ import 'dart:convert'; // For JSON encoding/decoding
 
 import 'package:flutter/material.dart';
 import 'package:alarm/alarm.dart';
-import 'package:flutter_alarm_application/screens/alarm_ring_screen.dart';
-import 'package:flutter_alarm_application/services/permission.dart';
-import 'package:flutter_alarm_application/widgets/alarm_setting_widget.dart';
-import 'package:flutter_alarm_application/widgets/notification_card.dart';
-import 'package:flutter_alarm_application/widgets/review_card.dart';
-import 'package:flutter_alarm_application/screens/alarm_detail_screen.dart';
+import 'package:alarmshare/screens/alarm_ring_screen.dart';
+import 'package:alarmshare/services/permission.dart';
+import 'package:alarmshare/widgets/alarm_setting_widget.dart';
+import 'package:alarmshare/widgets/notification_card.dart';
+import 'package:alarmshare/widgets/review_card.dart';
+import 'package:alarmshare/screens/alarm_detail_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:alarmshare/services/firestore_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -19,6 +21,10 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final FirestoreService _firestoreService = FirestoreService();
+  int userCoins = 0;
+  List<String> notifications = [];
+
   // Variables to store alarm settings
   TimeOfDay wakeUpTime = const TimeOfDay(hour: 7, minute: 0);
   TimeOfDay bedTime = const TimeOfDay(hour: 22, minute: 0);
@@ -48,6 +54,16 @@ class _HomeScreenState extends State<HomeScreen> {
     loadPreferences();
     Alarm.ringStream.stream.listen((alarmSettings) {
       onAlarmRing(alarmSettings);
+    });
+    _loadUserData();
+  }
+
+  void _loadUserData() async {
+    // For this example, we're using a hardcoded user ID. In a real app, you'd get this from Firebase Auth.
+    String userId = 'example_user_id';
+    int coins = await _firestoreService.getUserCoins(userId);
+    setState(() {
+      userCoins = coins;
     });
   }
 
@@ -123,14 +139,14 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('홈'),
-        actions: const [
+        actions: [
           Padding(
-            padding: EdgeInsets.only(right: 16.0),
+            padding: const EdgeInsets.only(right: 16.0),
             child: Row(
               children: [
-                Icon(Icons.monetization_on, color: Colors.yellow),
-                SizedBox(width: 4),
-                Text('보유코인 7'),
+                const Icon(Icons.monetization_on, color: Colors.yellow),
+                const SizedBox(width: 4),
+                Text('보유코인 $userCoins'),
               ],
             ),
           ),
@@ -305,7 +321,7 @@ class _HomeScreenState extends State<HomeScreen> {
         vibrate: wakeUpVibration,
         volume: 0.8,
         fadeDuration: 3.0,
-        notificationSettings: NotificationSettings(
+        notificationSettings: const NotificationSettings(
           title: '기상 알람',
           body: '일어날 시간입니다!',
         ),
@@ -330,7 +346,7 @@ class _HomeScreenState extends State<HomeScreen> {
         vibrate: bedTimeVibration,
         volume: 0.8,
         fadeDuration: 1.0,
-        notificationSettings: NotificationSettings(
+        notificationSettings: const NotificationSettings(
           title: '취침 알람',
           body: '취침 시간입니다!',
         ),

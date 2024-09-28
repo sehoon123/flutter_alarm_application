@@ -13,7 +13,7 @@
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
 
     <application
-        android:label="flutter_alarm_application"
+        android:label="alarmshare"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

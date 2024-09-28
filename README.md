@@ -1,3 +1,3 @@
-# flutter_alarm_application
+# alarmshare
 
 A new Flutter project.
