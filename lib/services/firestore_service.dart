@@ -20,11 +20,12 @@ class FirestoreService {
   Stream<List<String>> getNotifications() {
     return _firestore
         .collection('notification_collection')
-        .orderBy('timestamp', descending: true)
+        .orderBy('createdAt', descending: true)
         .limit(3)
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs.map((doc) => doc['message'] as String).toList();
+          debugPrint(snapshot.toString());
+      return snapshot.docs.map((doc) => doc['body'] as String).toList();
     });
   }
 }
