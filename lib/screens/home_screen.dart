@@ -1,3 +1,5 @@
+// /lib/screens/home_screen.dart
+
 import 'dart:io';
 import 'dart:convert'; // For JSON encoding/decoding
 
@@ -60,7 +62,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _loadUserData() async {
     // For this example, we're using a hardcoded user ID. In a real app, you'd get this from Firebase Auth.
-    String userId = 'example_user_id';
+    String userId = 'user_112345';
     int coins = await _firestoreService.getUserCoins(userId);
     setState(() {
       userCoins = coins;
