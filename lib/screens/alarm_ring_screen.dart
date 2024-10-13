@@ -37,7 +37,7 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
 
   // 보상 횟수 및 날짜 추적 변수
   int _dailyRewardCount = 0;
-  String _lastRewardDate = '';
+  final String _lastRewardDate = '';
 
   @override
   void initState() {
@@ -194,11 +194,13 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
     try {
       // Firebase Auth에서 현재 사용자 가져오기
       User? user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
-        String userId = user.uid;
+      if (true) {
+        // String userId = user.uid;
+        String userId = 'user_112345';
 
-        DocumentReference userDoc =
-            FirebaseFirestore.instance.collection('user_collection').doc(userId);
+        DocumentReference userDoc = FirebaseFirestore.instance
+            .collection('user_collection')
+            .doc(userId);
         await FirebaseFirestore.instance.runTransaction((transaction) async {
           DocumentSnapshot snapshot = await transaction.get(userDoc);
           int currentCoins = snapshot['coins'] ?? 0;
@@ -260,7 +262,9 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
 
   // 보상 횟수 키 생성
   String _getDailyRewardCountKey() {
-    return widget.isWakeUp ? 'dailyRewardCountWakeUp' : 'dailyRewardCountBedTime';
+    return widget.isWakeUp
+        ? 'dailyRewardCountWakeUp'
+        : 'dailyRewardCountBedTime';
   }
 
   // 마지막 보상 날짜 키 생성

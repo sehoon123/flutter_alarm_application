@@ -140,13 +140,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    User? user = FirebaseAuth.instance.currentUser;
+    // User? user = FirebaseAuth.instance.currentUser;
 
-    String userId = user!.uid;
+    // String userId = user!.uid;
+    String userId = 'user_112345';
 
     // Firestore에서 사용자의 문서를 실시간으로 스트림 리스닝
     Stream<DocumentSnapshot> userStream =
-        FirebaseFirestore.instance.collection('users').doc(userId).snapshots();
+        FirebaseFirestore.instance.collection('user_collection').doc(userId).snapshots();
 
     return Scaffold(
       appBar: AppBar(
