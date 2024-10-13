@@ -57,6 +57,9 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-7157795268227962~6368115802"/>
 
         <service android:name="com.gdelataillade.alarm.services.NotificationOnKillService" />
         <receiver android:name=".AlarmReceiver" android:exported="true" />

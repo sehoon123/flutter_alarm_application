@@ -3,6 +3,7 @@
 import 'dart:io';
 import 'dart:convert'; // For JSON encoding/decoding
 
+import 'package:alarmshare/widgets/my_banner_ad_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:alarm/alarm.dart';
 import 'package:alarmshare/screens/alarm_ring_screen.dart';
@@ -285,6 +286,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             // Review Invitation Section
             ReviewCard(),
+            MyBannerAdWidget(),
           ],
         ),
       ),
