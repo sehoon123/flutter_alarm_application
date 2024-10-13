@@ -17,8 +17,8 @@ void main() async {
   unawaited(MobileAds.instance.initialize());
 
   // Clear saved alarms
-  // SharedPreferences prefs = await SharedPreferences.getInstance();
-  // await prefs.clear();
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.clear();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await Alarm.init();
 

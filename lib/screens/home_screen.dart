@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:convert'; // For JSON encoding/decoding
 
 import 'package:alarmshare/widgets/my_banner_ad_widget.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:alarm/alarm.dart';
 import 'package:alarmshare/screens/alarm_ring_screen.dart';
@@ -139,6 +140,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    User? user = FirebaseAuth.instance.currentUser;
+
+    String userId = user!.uid;
+
+    // Firestore에서 사용자의 문서를 실시간으로 스트림 리스닝
+    Stream<DocumentSnapshot> userStream =
+        FirebaseFirestore.instance.collection('users').doc(userId).snapshots();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('홈'),
@@ -149,7 +158,24 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 const Icon(Icons.monetization_on, color: Colors.yellow),
                 const SizedBox(width: 4),
-                Text('보유코인 $userCoins'),
+                StreamBuilder<DocumentSnapshot> (
+                  stream: userStream,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return const Text('Error');
+                    }
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Text('보유코인 0');
+                    }
+
+                    if (snapshot.hasData && snapshot.data!.exists) {
+                      int coins = snapshot.data!['coins'] ?? 0;
+                      return Text('보유코인 $coins');
+                    }
+
+                    return const Text('보유코인 0');
+                  }
+                )
               ],
             ),
           ),
