@@ -17,31 +17,13 @@ void main() async {
   unawaited(MobileAds.instance.initialize());
 
   // Clear saved alarms
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  await prefs.clear();
+  // SharedPreferences prefs = await SharedPreferences.getInstance();
+  // await prefs.clear();
+
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await Alarm.init();
 
-  await printAllUsersData();
-
   runApp(const MyApp());
-}
-
-// Add this function
-Future<void> printAllUsersData() async {
-  try {
-    QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection('user_collection').get();
-    
-    debugPrint('Total users: ${querySnapshot.size}');
-    
-    for (var doc in querySnapshot.docs) {
-      debugPrint('User ID: ${doc.id}');
-      debugPrint('User Data: ${doc.data()}');
-      debugPrint('-------------------');
-    }
-  } catch (e) {
-    debugPrint('Error fetching users data: $e');
-  }
 }
 
 class MyApp extends StatelessWidget {
