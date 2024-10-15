@@ -7,13 +7,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:alarmshare/screens/home_screen.dart';
 import 'package:alarm/alarm.dart';
+import 'package:flutter_config/flutter_config.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await FlutterConfig.loadEnvVariables();
   unawaited(MobileAds.instance.initialize());
 
   // Clear saved alarms
@@ -22,6 +25,12 @@ void main() async {
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await Alarm.init();
+
+  // runApp() 호출 전 Flutter SDK 초기화
+  KakaoSdk.init(
+    nativeAppKey: FlutterConfig.get('kakaoNativeAppKey'),
+    javaScriptAppKey: FlutterConfig.get('kakaoJSAppKey'),
+  );
 
   runApp(const MyApp());
 }
