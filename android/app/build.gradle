@@ -1,3 +1,11 @@
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withInputStream { stream ->
+        localProperties.load(stream)
+    }
+}
+
 plugins {
     id "com.android.application"
     id "kotlin-android"
@@ -30,6 +38,7 @@ android {
         versionCode = flutter.versionCode
         versionName = flutter.versionName
         minSdkVersion 23
+        manifestPlaceholders = [kakaoNativeAppKey: localProperties['kakaoNativeAppKey']]
     }
 
     dependencies {
