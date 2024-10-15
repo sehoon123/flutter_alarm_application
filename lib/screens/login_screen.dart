@@ -1,11 +1,16 @@
 // /lib/screens/login_screen.dart
 
+import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart' as kakao;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'package:fluttertoast/fluttertoast.dart';
+import 'home_screen.dart';
+import 'agreement_screen.dart'; // AgreementScreen이 있다면 추가
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -16,25 +21,12 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  bool _isLoggingIn = false; // 로딩 상태 관리
 
   @override
   void initState() {
     super.initState();
-    _checkUserLoggedIn();
-  }
-
-  void _checkUserLoggedIn() async {
-    // Check if the user is already logged in
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      // User is logged in, navigate to the appropriate screen
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.pushReplacementNamed(
-          context,
-          '/home', // Replace with the route of your next screen
-        );
-      });
-    }
+    // 초기 로그인 상태는 AuthGate에서 관리하므로 별도의 체크는 필요 없음
   }
 
   Future<void> _storeUserInfo(User user) async {
@@ -42,72 +34,21 @@ class _LoginPageState extends State<LoginPage> {
     await prefs.setString('userId', user.uid);
     await prefs.setString('userName', user.displayName ?? '');
     await prefs.setString('userEmail', user.email ?? '');
-    // Store any other user information you need
+    // 필요에 따라 추가 정보 저장
   }
-
-  // Future<UserCredential> signInWithGoogle() async {
-  //   // Trigger the authentication flow
-  //   final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-
-  //   // Obtain the auth details from the request
-  //   final GoogleSignInAuthentication? googleAuth =
-  //       await googleUser?.authentication;
-
-  //   // Create a new credential
-  //   final credential = GoogleAuthProvider.credential(
-  //     accessToken: googleAuth?.accessToken,
-  //     idToken: googleAuth?.idToken,
-  //   );
-
-  //   // Once signed in, return the UserCredential
-  //   return await FirebaseAuth.instance.signInWithCredential(credential);
-  // }
-
-  // Future<UserCredential> signInWithApple() async {
-  //   final credential = await SignInWithApple.getAppleIDCredential(
-  //     scopes: [
-  //       AppleIDAuthorizationScopes.email,
-  //       AppleIDAuthorizationScopes.fullName,
-  //     ],
-  //   );
-  //   return await _auth
-  //       .signInWithCredential(OAuthProvider('apple.com').credential(
-  //     idToken: credential.identityToken,
-  //     accessToken: credential.authorizationCode,
-  //   ));
-  // }
-
-  // Future<UserCredential> signInWithLine() async {
-  //   try {
-  //     final result = await LineSDK.instance.login();
-
-  //     // Check for valid accessToken
-  //     final credential = OAuthProvider('line').credential(
-  //       idToken: result.accessToken.value,
-  //     );
-  //     return await _auth.signInWithCredential(credential);
-  //   } on PlatformException catch (e) {
-  //     if (e.code == 'CANCEL') {
-  //       // LINE-specific cancellation code
-  //       debugPrint('User canceled LINE sign-in');
-  //     } else {
-  //       debugPrint('Error in signInWithLine: $e');
-  //       // Handle other potential errors
-  //     }
-  //     rethrow;
-  //   }
-  // }
 
   Future<UserCredential> signInWithKakao() async {
     try {
       // ... (Get OAuthToken code remains the same) ...
       kakao.OAuthToken token =
           await kakao.UserApi.instance.loginWithKakaoAccount();
+      debugPrint('카카오계정으로 로그인 성공: ${token.accessToken}');
 
       var credential = OAuthProvider('oidc.kakao').credential(
         idToken: token.idToken,
         accessToken: token.accessToken,
       );
+      debugPrint('Firebase Auth로 로그인 성공');
 
       return await FirebaseAuth.instance.signInWithCredential(credential);
     } on kakao.KakaoAuthException catch (e) {
@@ -130,33 +71,67 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  void _handleSuccessfulSignIn(UserCredential userCredential) async {
+  Future<void> _handleSuccessfulSignIn(UserCredential userCredential) async {
+    if (!mounted) return; // Check if the widget is still mounted
     final user = userCredential.user;
-    await _storeUserInfo(user!);
+    if (user == null) return;
 
-    // Check if the user already exists in Firestore
+    await _storeUserInfo(user);
+
+    // Firestore에서 사용자 존재 여부 확인
     final userDoc =
-        FirebaseFirestore.instance.collection('users').doc(user.uid);
+        FirebaseFirestore.instance.collection('user_collection').doc(user.uid);
     final userSnapshot = await userDoc.get();
 
     if (!userSnapshot.exists) {
-      // Create a new user document
+      // 사용자 문서 생성
       await userDoc.set({
         'name': user.displayName,
         'email': user.email,
-        'agreement': false, // Set agreement to 'false' by default
-        // Add other fields as needed
+        'agreement': false, // 기본값 설정
+        'coins': 0,
+        'events_applied': [],
+        'events_won': [],
+        // 추가 필드 필요시 추가
       });
     }
+  }
 
-    Map<String, dynamic> userData = userSnapshot.data() as Map<String, dynamic>;
-    bool agreement = userData['agreement'] ?? false;
+  Future<void> _loginWithKakao() async {
+    setState(() {
+      _isLoggingIn = true;
+    });
 
-    // Navigate to the appropriate screen
-    Navigator.pushReplacementNamed(
-      context,
-      agreement ? '/home' : '/agreement',
-    );
+    try {
+      debugPrint('카카오 로그인 시작');
+      final userCredential = await signInWithKakao();
+      // After signInWithKakao, check if the widget is still mounted before proceeding
+      if (!mounted) return;
+      await _handleSuccessfulSignIn(userCredential);
+      // AuthGate가 실시간으로 인증 상태를 감지하여 HomeScreen으로 이동
+    } catch (e) {
+      if (!mounted)
+        return; // Ensure the widget is still mounted before showing toast
+      debugPrint('카카오 로그인 실패: $e');
+      Fluttertoast.showToast(
+        msg: "로그인에 실패했습니다. 다시 시도해주세요.",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
+    } finally {
+      if (!mounted) return; // Check before calling setState
+      setState(() {
+        _isLoggingIn = false;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    // If you have any controllers or listeners, dispose them here.
+    super.dispose();
   }
 
   @override
@@ -169,68 +144,20 @@ class _LoginPageState extends State<LoginPage> {
       ),
       body: SafeArea(
         child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              // InkWell(
-              //   child: Image.asset(
-              //     'assets/images/google_login.png',
-              //     width: 300,
-              //   ),
-              //   onTap: () async {
-              //     try {
-              //       final userCredential = await signInWithGoogle();
-              //       _handleSuccessfulSignIn(userCredential);
-              //       // Navigator.pushReplacementNamed(context, '/agreement');
-              //     } catch (e) {
-              //       debugPrint('Error in signInWithGoogle: $e');
-              //     }
-              //   },
-              // ),
-              // const SizedBox(height: 20), // Add space
-              // InkWell(
-              //   child: Image.asset(
-              //     'assets/images/apple_login.png',
-              //     width: 300,
-              //   ),
-              //   onTap: () async {
-              //     final userCredential = await signInWithApple();
-              //     _handleSuccessfulSignIn(userCredential);
-              //   },
-              // ),
-              // const SizedBox(height: 20), // Add space
-              // InkWell(
-              //   child: Image.asset(
-              //     'assets/images/line_login.png',
-              //     width: 300,
-              //   ),
-              //   onTap: () async {
-              //     try {
-              //       final userCredential = await signInWithLine();
-              //       _handleSuccessfulSignIn(userCredential);
-              //     } catch (e) {
-              //       debugPrint('Error in signInWithLine: $e');
-              //     }
-              //   },
-              // ),
-              // const SizedBox(height: 20), // Add space
-              InkWell(
-                child: Image.asset(
-                  'assets/images/kakao_login.png',
-                  width: 300,
+          child: _isLoggingIn
+              ? const CircularProgressIndicator()
+              : Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    InkWell(
+                      onTap: _loginWithKakao,
+                      child: Image.asset(
+                        'assets/images/kakao_login.png',
+                        width: 300,
+                      ),
+                    ),
+                  ],
                 ),
-                onTap: () async {
-                  try {
-                    debugPrint('Sign in with kakao');
-                    final userCredential = await signInWithKakao();
-                    _handleSuccessfulSignIn(userCredential);
-                  } catch (e) {
-                    debugPrint('Error in signInWithKakao: $e');
-                  }
-                },
-              ),
-            ],
-          ),
         ),
       ),
     );

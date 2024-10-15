@@ -140,10 +140,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // User? user = FirebaseAuth.instance.currentUser;
+    User? user = FirebaseAuth.instance.currentUser;
 
-    // String userId = user!.uid;
-    String userId = 'user_112345';
+    String userId = user!.uid;
 
     // Firestore에서 사용자의 문서를 실시간으로 스트림 리스닝
     Stream<DocumentSnapshot> userStream =

@@ -14,7 +14,6 @@
 
     <application
         android:label="alarmshare"
-        android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 
         <activity 

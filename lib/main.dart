@@ -2,10 +2,13 @@
 
 import 'dart:async';
 
+import 'package:alarmshare/screens/agreement_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:alarmshare/screens/home_screen.dart';
+import 'package:alarmshare/screens/login_screen.dart'; // LoginScreen 경로 확인
+import 'package:alarmshare/screens/auth_gate.dart'; // AuthGate 위젯 추가
 import 'package:alarm/alarm.dart';
 import 'package:flutter_config/flutter_config.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -19,14 +22,14 @@ void main() async {
   await FlutterConfig.loadEnvVariables();
   unawaited(MobileAds.instance.initialize());
 
-  // Clear saved alarms
-  // SharedPreferences prefs = await SharedPreferences.getInstance();
-  // await prefs.clear();
-
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await Alarm.init();
 
-  // runApp() 호출 전 Flutter SDK 초기화
+  // Clear saved alarms
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.clear();
+
+  // Kakao SDK 초기화
   KakaoSdk.init(
     nativeAppKey: FlutterConfig.get('kakaoNativeAppKey'),
     javaScriptAppKey: FlutterConfig.get('kakaoJSAppKey'),
@@ -41,11 +44,18 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: 'Alarm App',
-        theme: ThemeData(
-          brightness: Brightness.dark,
-          primaryColor: Colors.purple,
-        ),
-        home: const HomeScreen());
+      title: 'Alarm App',
+      theme: ThemeData(
+        brightness: Brightness.dark,
+        primaryColor: Colors.purple,
+      ),
+      home: const AuthGate(), // AuthGate를 초기 화면으로 설정
+      routes: {
+        '/home': (context) => const HomeScreen(),
+        '/login': (context) => const LoginPage(),
+        '/agreement': (context) =>
+            const AgreementScreen(), // AgreementScreen이 있다면 추가
+      },
+    );
   }
 }
