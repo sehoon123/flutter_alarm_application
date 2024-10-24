@@ -90,6 +90,7 @@ class _LoginPageState extends State<LoginPage> {
         'email': user.email,
         'agreement': false, // 기본값 설정
         'coins': 0,
+        'adCoupons': 0,
         'events_applied': [],
         'events_won': [],
         // 추가 필드 필요시 추가
